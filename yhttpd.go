@@ -7,7 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
+
+const DEFAULT_PORT = 8080
 
 func logRequest(req *http.Request, statusCode int) {
 	log.Printf("%s %s %s %d", req.RemoteAddr, req.Method, req.URL.Path, statusCode)
@@ -37,13 +40,25 @@ func listen(port uint) error {
 	return nil
 }
 
+func resolveDefaultPort() uint {
+	if portEnvVar, ok := os.LookupEnv("PORT"); !ok {
+		return DEFAULT_PORT
+	} else {
+		if port, err := strconv.ParseUint(portEnvVar, 10, 32); err != nil {
+			log.Fatalf("error parsing port from environent variable: PORT=%s, %s", portEnvVar, err)
+			return 0 // dead code!!1 omfg zombiess
+		} else {
+			return uint(port)
+		}
+	}
+}
+
 func main() {
-	var port = flag.Uint("port", 8080, "Port to listen for connections")
+	var port = flag.Uint("port", resolveDefaultPort(), "Port to listen for connections, also specified via enviroment vairlable PORT")
 	flag.Parse()
 
 	err := listen(*port)
 	if err != nil {
-		log.Printf("error starting httpd: %s", err)
-		os.Exit(1)
+		log.Fatalf("error starting httpd: %s", err)
 	}
 }
