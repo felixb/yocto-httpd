@@ -6,22 +6,6 @@ import (
 	"testing"
 )
 
-func TestCheckPort(t *testing.T) {
-	for _, p := range []int {-1, 0} {
-		err := checkPort(p)
-		if err == nil {
-			t.Errorf("Expected to throw error when run with invalid port: %d", p)
-		}
-	}
-
-	for _, p := range []int {1, 80, 8080} {
-		err := checkPort(p)
-		if err != nil {
-			t.Errorf("Expected to not throw error: %s", err)
-		}
-	}
-}
-
 func TestServeRequestGet(t *testing.T) {
 	for _, url := range []string {"/", "/foo/bar"} {
 		req, err := http.NewRequest("GET", url, nil)

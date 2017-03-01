@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -27,24 +26,11 @@ func serveRequest(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "OK")
 }
 
-func checkPort(port int) error {
-	if port <= 0 {
-		return errors.New(fmt.Sprintf("Invalid port: %d", port))
-	}
-	return nil
-}
-
-func listen(port int) error {
-	err := checkPort(port)
-	if err != nil {
-		return nil
-	}
-
+func listen(port uint) error {
 	log.Printf("starting httpd on port %d", port)
 	addr := fmt.Sprintf(":%d", port)
 	http.Handle("/", http.HandlerFunc(serveRequest))
-	err = http.ListenAndServe(addr, nil)
-	if err != nil {
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		return err
 	}
 	log.Printf("stopped httpd")
@@ -52,7 +38,7 @@ func listen(port int) error {
 }
 
 func main() {
-	var port = flag.Int("port", 8080, "Port to listen for connections")
+	var port = flag.Uint("port", 8080, "Port to listen for connections")
 	flag.Parse()
 
 	err := listen(*port)
