@@ -10,15 +10,19 @@ import (
 	"os"
 )
 
+func logRequest(req *http.Request, statusCode int) {
+	log.Printf("%s %s %s %d", req.RemoteAddr, req.Method, req.URL.Path, statusCode)
+}
+
 func serveRequest(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "GET" {
-		log.Printf("Unsupported HTTP method: %s", req.Method)
+		logRequest(req, http.StatusMethodNotAllowed)
 		w.Header().Add("Allow", "GET")
 		http.Error(w, "Only GET supported.", http.StatusMethodNotAllowed)
 		return
 	}
 
-	log.Printf("serve: %s\n", req.URL.Path)
+	logRequest(req, http.StatusOK)
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	io.WriteString(w, "OK")
 }
